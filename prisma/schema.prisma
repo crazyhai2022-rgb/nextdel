@@ -1,0 +1,495 @@
+// NEXTDEL — MySQL / MariaDB schema (Hostinger compatible)
+// All money values are stored as integers in the smallest currency unit (paise for INR).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────── Admin ─────────────────────────────
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  SUPPORT
+}
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique @db.VarChar(191)
+  name         String         @db.VarChar(120)
+  passwordHash String         @db.VarChar(100)
+  role         AdminRole      @default(ADMIN)
+  active       Boolean        @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+  auditLogs    AuditLog[]
+  emailLogs    EmailLog[]
+}
+
+model AdminSession {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique @db.VarChar(64)
+  adminId   String
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  ip        String?   @db.VarChar(64)
+  userAgent String?   @db.VarChar(255)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([adminId])
+}
+
+model AuditLog {
+  id        String     @id @default(cuid())
+  adminId   String?
+  admin     AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  action    String     @db.VarChar(80)
+  entity    String?    @db.VarChar(60)
+  entityId  String?    @db.VarChar(64)
+  details   Json?
+  ip        String?    @db.VarChar(64)
+  createdAt DateTime   @default(now())
+
+  @@index([createdAt])
+  @@index([entity, entityId])
+}
+
+// ───────────────────────────── Products ─────────────────────────────
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+model Product {
+  id                 String              @id @default(cuid())
+  title              String              @db.VarChar(200)
+  slug               String              @unique @db.VarChar(191)
+  shortDescription   String?             @db.Text
+  description        String?             @db.LongText
+  overview           String?             @db.LongText
+  accessInstructions String?             @db.LongText
+  originalPrice      Int
+  salePrice          Int
+  lifetimeLabel      String?             @default("Lifetime Access") @db.VarChar(60)
+  accessInfo         String?             @db.VarChar(200)
+  thumbnailUrl       String?             @db.VarChar(500)
+  thumbnailAlt       String?             @db.VarChar(200)
+  bannerUrl          String?             @db.VarChar(500)
+  status             ProductStatus       @default(DRAFT)
+  featured           Boolean             @default(false)
+  visible            Boolean             @default(true)
+  sortOrder          Int                 @default(0)
+  demoEnabled        Boolean             @default(false)
+  demoLinkType       String              @default("GROUP") @db.VarChar(20)
+  demoGroupUrl       String?             @db.VarChar(500)
+  demoChannelUrl     String?             @db.VarChar(500)
+  demoInviteUrl      String?             @db.VarChar(500)
+  demoButtonText     String?             @db.VarChar(60)
+  relatedMode        String              @default("AUTO") @db.VarChar(10)
+  seoTitle           String?             @db.VarChar(200)
+  seoDescription     String?             @db.Text
+  publishedAt        DateTime?
+  deletedAt          DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  images             ProductImage[]
+  videos             ProductVideo[]
+  features           ProductFeature[]
+  downloads          ProductDownload[]
+  accessLinks        ProductAccessLink[]
+  faqs               ProductFaq[]
+  relatedTo          ProductRelation[]   @relation("RelationFrom")
+  relatedFrom        ProductRelation[]   @relation("RelationTo")
+  orderItems         OrderItem[]
+
+  @@index([status, visible, deletedAt])
+  @@index([featured])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String  @db.VarChar(500)
+  alt       String? @db.VarChar(200)
+  kind      String  @default("GALLERY") @db.VarChar(20) // GALLERY | PREVIEW | CONTENT
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductVideo {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  kind      String  @default("EMBED") @db.VarChar(10) // EMBED (YouTube/Vimeo) | UPLOAD
+  url       String  @db.VarChar(500)
+  title     String? @db.VarChar(200)
+  posterUrl String? @db.VarChar(500)
+  isPreview Boolean @default(false)
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductFeature {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type      String  @default("FEATURE") @db.VarChar(20) // FEATURE | BENEFIT | INCLUDED | OUTCOME
+  text      String  @db.VarChar(500)
+  sortOrder Int     @default(0)
+
+  @@index([productId, type])
+}
+
+// Private downloadable files (never publicly served)
+model ProductDownload {
+  id         String        @id @default(cuid())
+  productId  String
+  product    Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  storageKey String        @db.VarChar(255)
+  fileName   String        @db.VarChar(255)
+  mimeType   String        @db.VarChar(100)
+  size       Int
+  sortOrder  Int           @default(0)
+  createdAt  DateTime      @default(now())
+  logs       DownloadLog[]
+
+  @@index([productId])
+}
+
+model ProductAccessLink {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label     String  @default("Access your product") @db.VarChar(120)
+  url       String  @db.VarChar(1000)
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductFaq {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  question  String  @db.VarChar(300)
+  answer    String  @db.Text
+  sortOrder Int     @default(0)
+
+  @@index([productId])
+}
+
+model ProductRelation {
+  fromId    String
+  toId      String
+  sortOrder Int     @default(0)
+  from      Product @relation("RelationFrom", fields: [fromId], references: [id], onDelete: Cascade)
+  to        Product @relation("RelationTo", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@id([fromId, toId])
+  @@index([toId])
+}
+
+// ───────────────────────────── Customers & Orders ─────────────────────────────
+
+model Customer {
+  id        String              @id @default(cuid())
+  email     String              @unique @db.VarChar(191)
+  name      String              @db.VarChar(120)
+  phone     String?             @db.VarChar(20)
+  notes     String?             @db.Text
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  orders    Order[]
+  checkouts AbandonedCheckout[]
+}
+
+enum OrderStatus {
+  PENDING
+  PAYMENT_INITIATED
+  PAID
+  FAILED
+  CANCELLED
+  EXPIRED
+  REFUNDED
+}
+
+enum DeliveryStatus {
+  NOT_DELIVERED
+  DELIVERED
+  EMAIL_FAILED
+}
+
+model Order {
+  id                  String             @id @default(cuid())
+  orderNumber         String             @unique @db.VarChar(32)
+  accessToken         String             @unique @db.VarChar(64)
+  idempotencyKey      String?            @unique @db.VarChar(64)
+  customerId          String
+  customer            Customer           @relation(fields: [customerId], references: [id])
+  customerName        String             @db.VarChar(120)
+  customerEmail       String             @db.VarChar(191)
+  customerPhone       String?            @db.VarChar(20)
+  subtotal            Int
+  discount            Int
+  total               Int
+  currency            String             @default("INR") @db.VarChar(3)
+  gateway             String?            @db.VarChar(20)
+  gatewayMode         String?            @db.VarChar(10)
+  gatewayOrderId      String?            @db.VarChar(100)
+  gatewayData         Json?
+  transactionId       String?            @db.VarChar(100)
+  status              OrderStatus        @default(PENDING)
+  deliveryStatus      DeliveryStatus     @default(NOT_DELIVERED)
+  failureReason       String?            @db.VarChar(500)
+  paidAt              DateTime?
+  deliveredAt         DateTime?
+  firstAccessedAt     DateTime?
+  refundedAt          DateTime?
+  cancelledAt         DateTime?
+  purchaseEventSentAt DateTime?
+  fbp                 String?            @db.VarChar(255)
+  fbc                 String?            @db.VarChar(255)
+  clientIp            String?            @db.VarChar(64)
+  userAgent           String?            @db.VarChar(255)
+  sourceUrl           String?            @db.VarChar(500)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  items               OrderItem[]
+  payments            Payment[]
+  emailLogs           EmailLog[]
+  gatewayLogs         GatewayLog[]
+  checkout            AbandonedCheckout?
+  downloadLogs        DownloadLog[]
+
+  @@index([status, createdAt])
+  @@index([customerEmail])
+  @@index([gatewayOrderId])
+  @@index([createdAt])
+}
+
+// Snapshot of what was purchased — survives product edits/deletion
+model OrderItem {
+  id                String   @id @default(cuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId         String?
+  product           Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productTitle      String   @db.VarChar(200)
+  productSlug       String   @db.VarChar(191)
+  thumbnailUrl      String?  @db.VarChar(500)
+  unitOriginalPrice Int
+  unitPrice         Int
+  quantity          Int      @default(1)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Payment {
+  id               String   @id @default(cuid())
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  gateway          String   @db.VarChar(20)
+  gatewayPaymentId String   @db.VarChar(100)
+  gatewayOrderId   String?  @db.VarChar(100)
+  amount           Int
+  currency         String   @default("INR") @db.VarChar(3)
+  status           String   @db.VarChar(30)
+  method           String?  @db.VarChar(40)
+  verifiedVia      String   @db.VarChar(20) // WEBHOOK | CALLBACK | POLL | RECONCILE
+  raw              Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([gateway, gatewayPaymentId])
+  @@index([orderId])
+}
+
+model PaymentWebhook {
+  id             String   @id @default(cuid())
+  gateway        String   @db.VarChar(20)
+  eventId        String   @db.VarChar(100)
+  eventType      String?  @db.VarChar(80)
+  signatureValid Boolean
+  processed      Boolean  @default(false)
+  orderNumber    String?  @db.VarChar(32)
+  error          String?  @db.Text
+  payload        String   @db.LongText
+  receivedAt     DateTime @default(now())
+
+  @@unique([gateway, eventId])
+  @@index([receivedAt])
+}
+
+// Raw request/response logs of gateway API calls
+model GatewayLog {
+  id        String   @id @default(cuid())
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  gateway   String   @db.VarChar(20)
+  action    String   @db.VarChar(60)
+  success   Boolean
+  status    Int?
+  response  String?  @db.LongText
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+enum CheckoutStage {
+  CART
+  CHECKOUT_STARTED
+  DETAILS_ENTERED
+  ORDER_CREATED
+  PAYMENT_INITIATED
+  PAID
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+model AbandonedCheckout {
+  id             String        @id @default(cuid())
+  visitorId      String        @db.VarChar(64)
+  customerId     String?
+  customer       Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  name           String?       @db.VarChar(120)
+  email          String?       @db.VarChar(191)
+  cartSnapshot   Json?
+  amount         Int           @default(0)
+  stage          CheckoutStage @default(CART)
+  orderId        String?       @unique
+  order          Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  gateway        String?       @db.VarChar(20)
+  lastEvent      String?       @db.VarChar(60)
+  contactedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  lastActivityAt DateTime      @default(now())
+
+  @@index([visitorId])
+  @@index([stage, lastActivityAt])
+  @@index([email])
+}
+
+model DownloadLog {
+  id         String          @id @default(cuid())
+  orderId    String
+  order      Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  downloadId String
+  download   ProductDownload @relation(fields: [downloadId], references: [id], onDelete: Cascade)
+  ip         String?         @db.VarChar(64)
+  createdAt  DateTime        @default(now())
+
+  @@index([orderId])
+}
+
+// ───────────────────────────── Email ─────────────────────────────
+
+model EmailLog {
+  id        String     @id @default(cuid())
+  orderId   String?
+  order     Order?     @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  sentById  String?
+  sentBy    AdminUser? @relation(fields: [sentById], references: [id], onDelete: SetNull)
+  recipient String     @db.VarChar(191)
+  subject   String     @db.VarChar(300)
+  type      String     @db.VarChar(40)
+  status    String     @default("QUEUED") @db.VarChar(20) // QUEUED | ACCEPTED | FAILED
+  messageId String?    @db.VarChar(255)
+  error     String?    @db.Text
+  createdAt DateTime   @default(now())
+
+  @@index([recipient])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+// ───────────────────────────── Support & CMS ─────────────────────────────
+
+model ContactInquiry {
+  id          String    @id @default(cuid())
+  name        String    @db.VarChar(120)
+  email       String    @db.VarChar(191)
+  subject     String?   @db.VarChar(200)
+  orderNumber String?   @db.VarChar(32)
+  message     String    @db.Text
+  status      String    @default("NEW") @db.VarChar(20) // NEW | IN_PROGRESS | RESOLVED
+  ip          String?   @db.VarChar(64)
+  repliedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, createdAt])
+  @@index([email])
+}
+
+model Page {
+  id             String   @id @default(cuid())
+  slug           String   @unique @db.VarChar(100)
+  title          String   @db.VarChar(200)
+  content        String   @db.LongText
+  seoTitle       String?  @db.VarChar(200)
+  seoDescription String?  @db.Text
+  published      Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+  createdAt      DateTime @default(now())
+}
+
+// ───────────────────────────── Settings ─────────────────────────────
+
+// Section-based JSON settings: general, branding, email, footer, seo, support, homepage, checkout, payments
+model SiteSetting {
+  key       String   @id @db.VarChar(64)
+  value     String   @db.LongText
+  updatedAt DateTime @updatedAt
+}
+
+model PaymentGatewaySetting {
+  gateway             String   @id @db.VarChar(20) // RAZORPAY | CASHFREE
+  enabled             Boolean  @default(false)
+  mode                String   @default("TEST") @db.VarChar(10) // TEST | LIVE
+  testPublicKey       String?  @db.VarChar(255)
+  testSecretEnc       String?  @db.Text
+  testWebhookSecretEnc String? @db.Text
+  livePublicKey       String?  @db.VarChar(255)
+  liveSecretEnc       String?  @db.Text
+  liveWebhookSecretEnc String? @db.Text
+  updatedAt           DateTime @updatedAt
+}
+
+model MarketingSetting {
+  id                 Int       @id @default(1)
+  pixelEnabled       Boolean   @default(false)
+  pixelId            String?   @db.VarChar(32)
+  capiEnabled        Boolean   @default(false)
+  capiTokenEnc       String?   @db.Text
+  testEventCode      String?   @db.VarChar(40)
+  requireConsent     Boolean   @default(true)
+  events             Json?
+  verificationStatus String?   @db.VarChar(255)
+  lastVerifiedAt     DateTime?
+  updatedAt          DateTime  @updatedAt
+}
+
+model SocialLink {
+  id        String  @id @default(cuid())
+  platform  String  @db.VarChar(30)
+  label     String  @db.VarChar(60)
+  url       String  @db.VarChar(500)
+  enabled   Boolean @default(true)
+  sortOrder Int     @default(0)
+}

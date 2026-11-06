@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+.env
+.env.local
+.claude
+.dev-admin.local
+hostinger-secrets.txt
+storage/public/*
+storage/private/*
+!storage/public/.gitkeep
+!storage/private/.gitkeep
+*.log
+.DS_Store
+tsconfig.tsbuildinfo
