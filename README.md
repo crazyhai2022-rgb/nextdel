@@ -39,6 +39,7 @@ Admin panel: `http://localhost:3000/admin`
 | `CRON_SECRET` | recommended | Protects `/api/cron/reconcile`. |
 | `TOKIO_WORKER_THREADS` | Hostinger | `1`. Caps Next.js/SWC native threads during the build. `npm run build` defaults it to `1` if unset. |
 | `RAYON_NUM_THREADS` | Hostinger | `1`. Same reason as above. |
+| `CASHFREE_DEFAULT_PHONE` | optional | 10-digit number sent to Cashfree when the customer gives none (the checkout has no mobile field). Defaults to `9999999999`. |
 
 When the server starts it checks these variables and logs a clear `[nextdel] ENV ERROR: …` line for anything missing or still a placeholder (for example `DB_USER` in `DATABASE_URL`, or `YOUR_HOSTINGER_USER` in `STORAGE_DIR`). It also logs `Database connection OK.` or `Database connection FAILED: …`. Secret values are never printed.
 

@@ -60,7 +60,9 @@ export async function POST(req: Request) {
       if (!/^[6-9]\d{9}$/.test(digits)) return jsonError("Please enter a valid 10-digit mobile number.", 422);
       phone = digits;
     }
-    if (cfg.gateway === "CASHFREE" && !phone) return jsonError("Mobile number is required by our payment partner.", 422);
+    // The checkout does not ask for a mobile number. Cashfree's API requires one, so when the customer
+    // gave none we send a placeholder to the gateway only (it is never stored on the customer record).
+    const gatewayPhone = phone ?? (/^[6-9]\d{9}$/.test(process.env.CASHFREE_DEFAULT_PHONE ?? "") ? process.env.CASHFREE_DEFAULT_PHONE! : "9999999999");
 
     // Idempotent retry: same submission returns the same order.
     const existing = await prisma.order.findUnique({ where: { idempotencyKey: body.idempotencyKey }, include: { items: true } });
@@ -157,7 +159,7 @@ export async function POST(req: Request) {
             orderNumber: order.orderNumber,
             amount: total,
             currency: order.currency,
-            customer: { id: customer.id, name: body.name, email: body.email, phone: phone! },
+            customer: { id: customer.id, name: body.name, email: body.email, phone: gatewayPhone },
             returnUrl: `${siteUrl()}/payment/processing?token=${order.accessToken}`,
             notifyUrl: `${siteUrl()}/api/webhooks/cashfree`,
             note: order.items.map((i) => i.productTitle).join(", "),

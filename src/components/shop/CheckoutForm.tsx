@@ -61,7 +61,6 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
   const [items, setItems] = useState<CartItem[] | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [age, setAge] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
@@ -70,7 +69,6 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
   const pending = useRef<CreateOrderResponse | null>(null);
   const tracked = useRef(false);
   const detailsTracked = useRef("");
-  const needsPhone = gateway?.name === "CASHFREE";
 
   // Re-price cart from the server.
   useEffect(() => {
@@ -115,7 +113,6 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
     const e: Record<string, string> = {};
     if (name.trim().length < 2) e.name = "Please enter your full name.";
     if (!EMAIL_RE.test(email.trim())) e.email = "Please enter a valid email address.";
-    if (needsPhone && !/^(\+?91)?[6-9]\d{9}$/.test(phone.replace(/[\s-]/g, ""))) e.phone = "Please enter a valid 10-digit mobile number.";
     if (requireAge && !age) e.age = "Please confirm to continue.";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -178,7 +175,6 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
           productIds: items.map((i) => i.productId),
           name: name.trim(),
           email: email.trim(),
-          phone: phone.trim() || undefined,
           visitorId: getVisitorId(),
           idempotencyKey: idemKey.current,
           ageConfirmed: age,
@@ -228,13 +224,6 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
               <input id="email" type="email" inputMode="email" className="input" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={onEmailBlur} aria-invalid={!!errors.email} maxLength={191} />
               {errors.email ? <p className="mt-1 text-sm text-red-300">{errors.email}</p> : <p className="mt-1 text-xs text-ink-muted">Your product and receipt will be sent here.</p>}
             </div>
-            {needsPhone && (
-              <div>
-                <label htmlFor="phone" className="label">Mobile number</label>
-                <input id="phone" type="tel" inputMode="tel" className="input" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} aria-invalid={!!errors.phone} maxLength={15} />
-                {errors.phone ? <p className="mt-1 text-sm text-red-300">{errors.phone}</p> : <p className="mt-1 text-xs text-ink-muted">Required by our payment partner for payment confirmation.</p>}
-              </div>
-            )}
             {requireAge && (
               <label className="flex items-start gap-2.5 text-sm text-ink-soft">
                 <input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} className="mt-0.5 h-4 w-4 accent-[#6B1E23]" />
