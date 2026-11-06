@@ -150,7 +150,7 @@ export default async function ProductPage({ params }: Params) {
             )}
             {p.accessInstructions && (
               <section>
-                <h2 className="heading-spaced mb-4 text-[13px]">How you'll get access</h2>
+                <h2 className="heading-spaced mb-4 text-[13px]">How you&apos;ll get access</h2>
                 <div className="rich" dangerouslySetInnerHTML={{ __html: p.accessInstructions }} />
               </section>
             )}

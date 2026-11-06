@@ -53,7 +53,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   return (
     <div>
-      {sp.denied && <p className="mb-4 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm text-amber-200">You don't have access to that section.</p>}
+      {sp.denied && <p className="mb-4 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm text-amber-200">You don&apos;t have access to that section.</p>}
       <PageHeader title="Dashboard" description={`${fmtDate(start, false)} – ${fmtDate(new Date(end.getTime() - 1), false)}`} />
       <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
         <FilterTabs tabs={tabs} active={key} />

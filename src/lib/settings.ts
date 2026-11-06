@@ -1,4 +1,4 @@
-import { prisma } from "./db";
+import { logDbError, prisma } from "./db";
 import { decryptSecret } from "./crypto";
 
 export type GeneralSettings = {
@@ -180,7 +180,15 @@ const TTL = 15_000;
 
 async function loadAll(): Promise<Partial<SettingsMap>> {
   if (cache && Date.now() - cache.at < TTL) return cache.data;
-  const rows = await prisma.siteSetting.findMany();
+  let rows: { key: string; value: string }[];
+  try {
+    rows = await prisma.siteSetting.findMany();
+  } catch (err) {
+    // Database down or misconfigured: serve the built-in defaults instead of crashing every page.
+    logDbError("loading site settings", err);
+    cache = { at: Date.now(), data: {} };
+    return cache.data;
+  }
   const data: Partial<SettingsMap> = {};
   for (const r of rows) {
     try {
@@ -222,15 +230,24 @@ export async function getSmtpConfig() {
 }
 
 export async function getSocialLinks(enabledOnly = true) {
-  return prisma.socialLink.findMany({
-    where: enabledOnly ? { enabled: true } : undefined,
-    orderBy: { sortOrder: "asc" },
-  });
+  try {
+    return await prisma.socialLink.findMany({
+      where: enabledOnly ? { enabled: true } : undefined,
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (err) {
+    if (!enabledOnly) throw err; // admin screens should see the real error
+    logDbError("loading social links", err);
+    return [];
+  }
 }
 
 export async function getMarketing() {
   return (
-    (await prisma.marketingSetting.findUnique({ where: { id: 1 } })) ?? {
+    (await prisma.marketingSetting.findUnique({ where: { id: 1 } }).catch((err) => {
+      logDbError("loading marketing settings", err);
+      return null;
+    })) ?? {
       id: 1,
       pixelEnabled: false,
       pixelId: null,

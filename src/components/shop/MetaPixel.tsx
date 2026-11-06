@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 type Props = { enabled: boolean; pixelId: string; requireConsent: boolean; events: Record<string, boolean> };
 
@@ -67,7 +68,7 @@ export function MetaPixel({ enabled, pixelId, requireConsent, events }: Props) {
       <div className="container-site flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-ink-soft">
           We use cookies for analytics and to measure our ads. You can accept or decline non-essential cookies.{" "}
-          <a href="/privacy-policy" className="underline">Privacy Policy</a>
+          <Link href="/privacy-policy" className="underline">Privacy Policy</Link>
         </p>
         <div className="flex shrink-0 gap-2">
           <button onClick={() => choose("denied")} className="btn-outline btn-sm">Decline</button>

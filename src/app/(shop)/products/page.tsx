@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listProducts, type SortKey } from "@/lib/products";
 import { ProductGrid } from "@/components/shop/ProductCard";
+import { safeQuery } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Products", alternates: { canonical: "/products" } };
 
@@ -16,7 +17,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const sort = (SORTS.find((s) => s.key === sp.sort)?.key ?? "featured") as SortKey;
   const q = (sp.q ?? "").slice(0, 100);
-  const products = await listProducts({ sort, q });
+  const { data: products, ok } = await safeQuery("loading the products page", () => listProducts({ sort, q }), []);
   const qs = (s: string) => `/products?${new URLSearchParams({ ...(q ? { q } : {}), sort: s }).toString()}`;
   return (
     <div className="container-site py-10 sm:py-14">
@@ -33,7 +34,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
           ))}
         </div>
       </div>
-      {products.length ? (
+      {!ok ? (
+        <div className="card px-6 py-16 text-center">
+          <p className="text-ink-soft">The store is temporarily unavailable.</p>
+          <p className="mt-2 text-sm text-ink-muted">Please try again in a few minutes.</p>
+        </div>
+      ) : products.length ? (
         <ProductGrid products={products} />
       ) : (
         <div className="card px-6 py-16 text-center">

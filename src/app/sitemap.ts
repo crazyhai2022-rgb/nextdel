@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 export const dynamic = "force-dynamic";
-import { prisma } from "@/lib/db";
+import { prisma, safeQuery } from "@/lib/db";
 import { siteUrl } from "@/lib/env";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
-  const [products, pages] = await Promise.all([
-    prisma.product.findMany({ where: { status: "PUBLISHED", deletedAt: null, visible: true }, select: { slug: true, updatedAt: true } }),
-    prisma.page.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }),
+  const [{ data: products }, { data: pages }] = await Promise.all([
+    safeQuery("building the sitemap (products)", () => prisma.product.findMany({ where: { status: "PUBLISHED", deletedAt: null, visible: true }, select: { slug: true, updatedAt: true } }), []),
+    safeQuery("building the sitemap (pages)", () => prisma.page.findMany({ where: { published: true }, select: { slug: true, updatedAt: true } }), []),
   ]);
   return [
     { url: `${base}/`, changeFrequency: "daily", priority: 1 },

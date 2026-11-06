@@ -53,7 +53,7 @@ export default async function EmailsPage({ searchParams }: { searchParams: Promi
             ))}
           </Table>
           <Pagination page={page} pages={Math.ceil(total / PER)} makeHref={(p) => qs({ page: String(p) })} />
-          <p className="mt-3 text-xs text-ink-muted">"Accepted" means the SMTP server accepted the message for delivery. It does not confirm the message reached the inbox.</p>
+          <p className="mt-3 text-xs text-ink-muted">&quot;Accepted&quot; means the SMTP server accepted the message for delivery. It does not confirm the message reached the inbox.</p>
         </div>
         <Panel title="Compose email" className="h-fit"><EmailComposer lockTo={false} /></Panel>
       </div>

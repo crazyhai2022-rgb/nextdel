@@ -164,7 +164,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                 ))}
               </ul>
             ) : <p className="text-sm text-ink-muted">No emails sent yet.</p>}
-            <p className="mt-3 text-[11px] text-ink-muted">"Accepted" = the mail server accepted the message for delivery; inbox delivery cannot be guaranteed.</p>
+            <p className="mt-3 text-[11px] text-ink-muted">&quot;Accepted&quot; = the mail server accepted the message for delivery; inbox delivery cannot be guaranteed.</p>
           </Panel>
           {order.checkout && (
             <Panel title="Checkout funnel">
