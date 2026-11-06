@@ -180,6 +180,9 @@ export function CheckoutForm({ gateway, currency, secureNote, requireAge, ageTex
           ageConfirmed: age,
         });
         if (!r.ok) {
+          // A failed attempt leaves its order behind; use a fresh key so "Pay" can be retried.
+          idemKey.current = newKey();
+          pending.current = null;
           if (r.code === "CART_CHANGED") cart.replace([]);
           throw new Error(r.error || "Could not create your order.");
         }
