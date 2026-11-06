@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 const SECTION: Record<string, string> = {
   FEATURE: "Key features",
   INCLUDED: "What's included",
-  OUTCOME: "What you'll learn",
+  OUTCOME: "What you'll get",
   BENEFIT: "Benefits",
 };
 

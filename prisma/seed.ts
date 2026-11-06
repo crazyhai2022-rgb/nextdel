@@ -13,7 +13,7 @@ const PAGES: { slug: string; title: string; content: string }[] = [
   {
     slug: "about-us",
     title: "About Us",
-    content: `<p>NEXTDEL creates and curates downloadable digital learning resources — guides, courses and study materials — delivered instantly with lifetime access.</p><h2>What we do</h2><p>Every product is built to be practical and easy to follow. After purchase you receive immediate access by email and on your secure order page.</p><h2>Why NEXTDEL</h2><ul><li>Instant digital delivery</li><li>Lifetime access to your purchases</li><li>Secure payments through trusted Indian payment gateways</li><li>Responsive customer support</li></ul>`,
+    content: `<p>NEXTDEL creates and curates downloadable digital products delivered instantly with lifetime access.</p><h2>What we do</h2><p>Every product is built to be practical and easy to follow. After purchase you receive immediate access by email and on your secure order page.</p><h2>Why NEXTDEL</h2><ul><li>Instant digital delivery</li><li>Lifetime access to your purchases</li><li>Secure payments through trusted Indian payment gateways</li><li>Responsive customer support</li></ul>`,
   },
   {
     slug: "contact-us",
@@ -44,19 +44,19 @@ const PAGES: { slug: string; title: string; content: string }[] = [
     title: "Terms and Conditions",
     content: `${NOTE}<p>By accessing this website or purchasing from NEXTDEL, you agree to these Terms and Conditions.</p>
 <h2>1. Eligibility</h2><p>Some products are intended only for adults. By purchasing, you confirm you are at least 18 years old (or the age of majority in your jurisdiction) and legally permitted to access the content.</p>
-<h2>2. Digital products and licence</h2><p>All products are digital. On purchase you receive a personal, non-transferable, non-exclusive licence to access and use the product for your own educational purposes. You may not resell, share, redistribute, publicly post or reproduce the content.</p>
+<h2>2. Digital products and licence</h2><p>All products are digital. On purchase you receive a personal, non-transferable, non-exclusive licence to access and use the product for your own personal use. You may not resell, share, redistribute, publicly post or reproduce the content.</p>
 <h2>3. Pricing and payment</h2><p>Prices are shown in Indian Rupees (INR). Payment is processed securely by our payment partners. An order is confirmed only after payment is verified by the payment gateway.</p>
 <h2>4. Delivery</h2><p>Products are delivered digitally by email and through your secure order page after payment verification. Download links are time-limited for security; your order page always generates fresh links.</p>
 <h2>5. Refunds</h2><p>Refunds are governed by our <a href="/refund-policy">Refund Policy</a>.</p>
 <h2>6. Intellectual property</h2><p>All content, trademarks and materials are owned by NEXTDEL or its licensors and are protected by law.</p>
-<h2>7. Limitation of liability</h2><p>Products are provided for educational purposes. To the extent permitted by law, NEXTDEL is not liable for indirect or consequential losses arising from use of the products.</p>
+<h2>7. Limitation of liability</h2><p>Products are provided for informational and personal use. To the extent permitted by law, NEXTDEL is not liable for indirect or consequential losses arising from use of the products.</p>
 <h2>8. Changes</h2><p>We may update these terms from time to time. The version published on this page applies to your purchase.</p>
 <h2>9. Governing law</h2><p>These terms are governed by the laws of India.</p>`,
   },
   {
     slug: "refund-policy",
     title: "Refund Policy",
-    content: `${NOTE}<p>NEXTDEL sells downloadable digital products and digital access-based educational resources. Because digital products can be downloaded or accessed immediately after purchase, <strong>refunds and returns are generally not offered once an order has been successfully delivered or access has been provided.</strong></p>
+    content: `${NOTE}<p>NEXTDEL sells downloadable digital products and digital access-based products. Because digital products can be downloaded or accessed immediately after purchase, <strong>refunds and returns are generally not offered once an order has been successfully delivered or access has been provided.</strong></p>
 <h2>When we will help</h2><p>Nothing in this policy limits any rights or remedies you have under applicable consumer protection law. We will provide a remedy — such as re-delivery, a replacement or a refund — in situations including:</p><ul><li><strong>Duplicate charge:</strong> you were charged more than once for the same order.</li><li><strong>Unauthorised transaction:</strong> a payment was made without your permission.</li><li><strong>Non-delivery:</strong> you paid but did not receive access and we are unable to provide it.</li><li><strong>Technical failure:</strong> the file or access link is defective and we cannot fix it within a reasonable time.</li><li><strong>Other cases</strong> where a remedy is required by law.</li></ul>
 <h2>How to request help</h2><p>Contact us through the <a href="/contact-us">Contact Us</a> page within 7 days of purchase with your order ID, the email used at checkout and a description of the issue. Approved refunds are processed to the original payment method; timelines depend on your bank and payment provider.</p>
 <h2>Failed or pending payments</h2><p>If money was debited but your order shows as failed, the amount is normally reversed automatically by your bank or payment provider within 5–7 working days. Contact us if it isn't.</p>`,

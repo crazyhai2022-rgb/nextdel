@@ -19,10 +19,15 @@ export async function Header() {
       )}
       <header className="sticky top-0 z-40 border-b border-line bg-night/85 backdrop-blur supports-[backdrop-filter]:bg-night/70">
         <div className="container-site flex h-14 items-center justify-between gap-4">
-          <Link href="/" className="flex shrink-0 items-center" aria-label={`${general.siteName} home`}>
+          <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={`${general.siteName} home`}>
             {general.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={general.logoUrl} alt={general.siteName} className="h-7 w-auto max-w-[160px] object-contain" />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={general.logoUrl} alt={general.siteName} className="h-10 w-auto max-w-[160px] rounded-lg object-contain" />
+                {general.logoUrl === "/logo.webp" && (
+                  <span className="font-display text-[17px] font-light tracking-[0.34em] text-ink">{general.siteName}</span>
+                )}
+              </>
             ) : (
               <span className="font-display text-[17px] font-light tracking-[0.34em] text-ink">{general.siteName}</span>
             )}

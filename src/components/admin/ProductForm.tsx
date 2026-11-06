@@ -118,7 +118,7 @@ function ImagePicker({ label, value, onChange, hint, aspect = "aspect-video" }: 
 const FEATURE_TYPES = [
   { key: "FEATURE", label: "Key features" },
   { key: "INCLUDED", label: "What's included" },
-  { key: "OUTCOME", label: "Learning outcomes" },
+  { key: "OUTCOME", label: "Highlights" },
   { key: "BENEFIT", label: "Benefits" },
 ] as const;
 
@@ -158,7 +158,7 @@ export function ProductForm({ id, initial, allProducts }: { id?: string; initial
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Lifetime access label"><input className="input" value={v.lifetimeLabel} onChange={(e) => set("lifetimeLabel", e.target.value)} maxLength={60} /></Field>
-              <Field label="Access information" hint="e.g. 'PDF + private course portal'"><input className="input" value={v.accessInfo} onChange={(e) => set("accessInfo", e.target.value)} maxLength={200} /></Field>
+              <Field label="Access information" hint="e.g. 'PDF + private access portal'"><input className="input" value={v.accessInfo} onChange={(e) => set("accessInfo", e.target.value)} maxLength={200} /></Field>
             </div>
           </Section>
 
@@ -265,7 +265,7 @@ export function ProductForm({ id, initial, allProducts }: { id?: string; initial
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <span className="label mb-0">External access links</span>
-                <button type="button" className="text-xs text-rose" onClick={() => set("accessLinks", [...v.accessLinks, { label: "Access your course", url: "" }])}>+ Add link</button>
+                <button type="button" className="text-xs text-rose" onClick={() => set("accessLinks", [...v.accessLinks, { label: "Access your product", url: "" }])}>+ Add link</button>
               </div>
               <Sortable items={v.accessLinks} onChange={(x) => set("accessLinks", x)} render={(l, _i, up) => (
                 <div className="grid gap-2 sm:grid-cols-[200px_1fr]">
