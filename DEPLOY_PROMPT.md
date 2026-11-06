@@ -2,7 +2,7 @@
 
 **How to use (kaise use karein):**
 1. Open hPanel (https://hpanel.hostinger.com) in Chrome and log in yourself.
-2. Keep these two files ready on your computer: `nextdel-hostinger.zip` and `hostinger-secrets.txt`.
+2. Keep these files ready on your computer: `hostinger-secrets.txt`, plus `nextdel-hostinger.zip` (it contains `database/hostinger-database.sql` and is the backup upload option). Code on GitHub: https://github.com/crazyhai2022-rgb/nextdel
 3. Open the Claude in Chrome extension, copy everything below the line, and paste it in.
 4. Whenever Claude asks for a password, secret, or file upload, do that step yourself, then tell Claude "done".
 
@@ -46,7 +46,10 @@ You are helping me deploy my website **NEXTDEL** (a Next.js 15 + Prisma + MySQL 
 
 ## Step 4 — Create the Node.js web app
 1. Go to **Websites → Add website → Node.js Web App** (or the Node.js section for my domain).
-2. Choose **Upload files / ZIP upload** as the source. Ask me to upload **`nextdel-hostinger.zip`**. `package.json` is at the root of the zip.
+2. Source — use **GitHub** if available (recommended, because future updates auto-deploy):
+   - Choose **Import from GitHub / Connect GitHub**, and let me approve the GitHub authorization myself.
+   - Repository: **`crazyhai2022-rgb/nextdel`** (public), branch **`main`**.
+   - If GitHub import isn't offered, choose **Upload files / ZIP upload** instead and ask me to upload **`nextdel-hostinger.zip`**. `package.json` is at the root of the zip.
 3. Use these settings (adapt names to what Hostinger shows):
    - Framework/preset: **Next.js** (or "Other / Custom" if Next.js isn't listed)
    - Node.js version: **20.x** (or 22.x)
