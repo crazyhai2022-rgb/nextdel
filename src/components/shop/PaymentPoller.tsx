@@ -48,7 +48,7 @@ export function PaymentPoller({ token }: { token: string }) {
     return (
       <div className="text-center">
         <h1 className="text-2xl font-semibold text-ink">Still confirming your payment</h1>
-        <p className="mx-auto mt-3 max-w-md text-ink-soft">Your bank is taking longer than usual. You don't need to pay again — as soon as the payment is confirmed, we'll email your product automatically.</p>
+        <p className="mx-auto mt-3 max-w-md text-ink-soft">Your bank is taking longer than usual. You don&apos;t need to pay again — as soon as the payment is confirmed, we&apos;ll email your product automatically.</p>
         <div className="mt-6 flex justify-center gap-3">
           <button onClick={() => location.reload()} className="btn-primary">Check again</button>
           <Link href="/order-lookup" className="btn-outline">Order lookup</Link>
@@ -60,7 +60,7 @@ export function PaymentPoller({ token }: { token: string }) {
     <div className="text-center">
       <div className="mx-auto h-10 w-10 animate-spin rounded-full border-2 border-line border-t-rose" />
       <h1 className="mt-6 text-2xl font-semibold text-ink">Confirming your payment…</h1>
-      <p className="mx-auto mt-3 max-w-md text-ink-soft">Please don't close this page or press back. This usually takes a few seconds.</p>
+      <p className="mx-auto mt-3 max-w-md text-ink-soft">Please don&apos;t close this page or press back. This usually takes a few seconds.</p>
     </div>
   );
 }

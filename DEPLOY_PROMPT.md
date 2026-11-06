@@ -52,12 +52,12 @@ You are helping me deploy my website **NEXTDEL** (a Next.js 15 + Prisma + MySQL 
    - If GitHub import isn't offered, choose **Upload files / ZIP upload** instead and ask me to upload **`nextdel-hostinger.zip`**. `package.json` is at the root of the zip.
 3. Use these settings (adapt names to what Hostinger shows):
    - Framework/preset: **Next.js** (or "Other / Custom" if Next.js isn't listed)
-   - Node.js version: **20.x** (or 22.x)
+   - Node.js version: **22.x** (required)
    - Root / app directory: the folder that contains `package.json`
-   - Install command: `npm install`
+   - Install command: `npm ci` (or `npm install`)
    - Build command: `npm run build`
    - Start command: `npm start`
-   - Output directory (if asked): `.next`
+   - Output directory (if asked): `.next` (the app builds a Next.js standalone server)
 4. Domain: connect it to my domain (or a subdomain if I tell you).
 
 ## Step 5 — Environment variables
@@ -71,6 +71,8 @@ In the Node.js app's **Environment variables** section, add these keys. **Tell m
 | `ADMIN_SETUP_TOKEN` | from secrets file (temporary) |
 | `CRON_SECRET` | from secrets file |
 | `STORAGE_DIR` | `/home/MY_HOSTINGER_USERNAME/nextdel-storage`. Help me find my username (hPanel → Files → File Manager shows the `/home/u123456789/` path). |
+| `TOKIO_WORKER_THREADS` | `1` |
+| `RAYON_NUM_THREADS` | `1` |
 | `NODE_ENV` | `production` (only if Hostinger doesn't set it automatically) |
 
 Then **save** and **deploy / build** the app.
@@ -83,10 +85,11 @@ Then **save** and **deploy / build** the app.
 ## Step 7 — Build and start
 1. Start the build/deploy and watch the build log.
 2. If the build fails, open the log, copy the last ~30 lines of the error, explain it to me, and suggest a fix. Common causes:
-   - Wrong Node version → switch to 20.x
+   - Wrong Node version → switch to 22.x
    - `DATABASE_URL` missing or malformed → check Step 5
    - "Prisma engine" errors → make sure the install command is `npm install` (it runs `prisma generate` automatically)
-3. When the app shows **Running**, open `https://MY-DOMAIN` in a new tab and take a screenshot. I should see the NEXTDEL store in a dark crimson theme, with "New products are coming soon" since there are no products yet.
+3. Open the app's runtime logs. Lines starting with `[nextdel] ENV ERROR` name any wrong variable. `Database connection FAILED` means `DATABASE_URL` is wrong.
+4. When the app shows **Running**, open `https://MY-DOMAIN` in a new tab and take a screenshot. I should see the NEXTDEL store in a dark crimson theme, with "New products are coming soon" since there are no products yet.
 
 ## Step 8 — SSL
 1. Go to **Security → SSL** (or the domain's SSL section) and make sure SSL is **active** for my domain. Install the free SSL if it isn't.

@@ -18,7 +18,7 @@ export function ContactForm() {
       setState("idle");
     }
   }
-  if (state === "done") return <p className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Thanks — your message has been received. We'll reply by email soon.</p>;
+  if (state === "done") return <p className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">Thanks — your message has been received. We&apos;ll reply by email soon.</p>;
   return (
     <form onSubmit={submit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">

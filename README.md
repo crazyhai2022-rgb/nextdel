@@ -9,7 +9,7 @@ Production-ready digital products e-commerce platform: storefront, cart, checkou
 
 ## 1. Requirements
 
-- Node.js 18.18+ (20 or 22 recommended)
+- **Node.js 22.12+** (see `.nvmrc`; `package.json` `engines` enforces it). Node 18/20 are not supported.
 - MySQL 8 / MariaDB 10.6+ (Hostinger MySQL works as-is)
 - An SMTP mailbox (Hostinger Email works: `smtp.hostinger.com`, port 465)
 - Razorpay and/or Cashfree merchant account
@@ -34,9 +34,13 @@ Admin panel: `http://localhost:3000/admin`
 | `DATABASE_URL` | ✅ | `mysql://USER:PASSWORD@HOST:3306/DBNAME` — URL-encode special characters in the password (`@`→`%40`, `#`→`%23`). |
 | `SITE_URL` | ✅ | Public URL, no trailing slash, e.g. `https://nextdel.in`. Used for emails, webhooks, sitemap. |
 | `APP_SECRET` | ✅ | 64+ random characters. Encrypts saved gateway/SMTP/Meta secrets and signs download links. **Never change after go-live** (saved secrets would become unreadable). Generate: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"` |
-| `STORAGE_DIR` | recommended | Absolute folder for uploads, **outside the app folder**, e.g. `/home/u123456789/nextdel-storage`. |
+| `STORAGE_DIR` | ✅ in production | Absolute folder for uploads, **outside the app folder**, e.g. `/home/<hostinger-user>/nextdel-storage`. |
 | `ADMIN_SETUP_TOKEN` | optional | Enables the one-time `/admin/setup` page (only works while no admin exists). Remove after use. |
 | `CRON_SECRET` | recommended | Protects `/api/cron/reconcile`. |
+| `TOKIO_WORKER_THREADS` | Hostinger | `1`. Caps Next.js/SWC native threads during the build. `npm run build` defaults it to `1` if unset. |
+| `RAYON_NUM_THREADS` | Hostinger | `1`. Same reason as above. |
+
+When the server starts it checks these variables and logs a clear `[nextdel] ENV ERROR: …` line for anything missing or still a placeholder (for example `DB_USER` in `DATABASE_URL`, or `YOUR_HOSTINGER_USER` in `STORAGE_DIR`). It also logs `Database connection OK.` or `Database connection FAILED: …`. Secret values are never printed.
 
 All payment, email and tracking credentials are entered in the **admin panel**, stored encrypted (AES-256-GCM) and never sent to the browser.
 
@@ -51,12 +55,29 @@ All payment, email and tracking credentials are entered in the **admin panel**, 
 
 ### 4.2 Create the Node.js app
 1. hPanel → **Websites → Add website → Node.js Web App** (or *Advanced → Node.js* on your site).
-2. Deploy from **GitHub** (recommended) or upload a ZIP of this folder (exclude `node_modules`, `.next`, `.env`, `storage`).
+2. Deploy from **GitHub** (branch `main`, auto-deploys on every push) or upload a ZIP of this folder (exclude `node_modules`, `.next`, `.env`, `storage`).
 3. Settings:
-   - Node version: **20.x or 22.x**
+   - Node version: **22.x** (required; Node 18 fails with `ERR_REQUIRE_ESM`)
+   - Install command: `npm ci` (or `npm install`)
    - Build command: `npm run build`
    - Start command: `npm start`
-4. Add the **environment variables** from section 3 in the app's *Environment variables* panel.
+   - Output: Next.js **standalone** (`.next/standalone/server.js`). `npm run build` copies the static assets into it, and `npm start` runs it, so either Hostinger's standalone detection or `npm start` works.
+4. Add these **environment variables** in the app's *Environment variables* panel (real values only; never commit them):
+
+   | Variable | Example format |
+   |---|---|
+   | `DATABASE_URL` | `mysql://u111111111_nextdel:PASSWORD@localhost:3306/u111111111_nextdel` (use the user, database and host shown in hPanel → Databases; URL-encode special characters in the password: `@`→`%40`, `#`→`%23`, `/`→`%2F`, `:`→`%3A`, `?`→`%3F`, `&`→`%26`) |
+   | `SITE_URL` | `https://nextdel.store` (with `https://`, no trailing slash) |
+   | `APP_SECRET` | 64+ random characters (never change after go-live) |
+   | `STORAGE_DIR` | `/home/u111111111/nextdel-storage` (your real home path from File Manager; outside the app folder) |
+   | `ADMIN_SETUP_TOKEN` | random value; delete after creating the first admin |
+   | `CRON_SECRET` | random value, used in the cron URL |
+   | `TOKIO_WORKER_THREADS` | `1` |
+   | `RAYON_NUM_THREADS` | `1` |
+
+5. Low-resource build: shared plans limit how many threads one account can start ("OS can't spawn worker thread: Resource temporarily unavailable"). The build is already tuned for this: one CPU worker, no worker threads, no separate webpack worker, static generation concurrency 1, and native thread pools capped by `scripts/build.mjs`. Lint and type checks are skipped inside the build; they run with `npm run check` and in GitHub Actions on every push/PR.
+
+**After a redeploy, check:** the runtime log shows `Environment check passed.` and `Database connection OK.`; the home page loads; `/privacy-policy` shows the seeded page; `/admin/login` loads. If the home page says "The store is temporarily unavailable", the log line above it names the cause.
 
 ### 4.3 First-time setup (SSH — hPanel → Advanced → SSH Access)
 ```bash
@@ -169,6 +190,8 @@ src/components/                 shop + admin UI
 npm run build          # production build (runs prisma generate)
 npm start              # start production server (PORT env respected)
 npm run typecheck      # TypeScript check
+npm run lint           # ESLint
+npm run check          # typecheck + lint (run before pushing)
 npm run db:migrate     # apply migrations
 npm run db:seed        # (re)seed defaults — never overwrites existing content
 npm run create-admin   # create admin or reset a password

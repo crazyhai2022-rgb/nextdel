@@ -77,7 +77,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <div className="flex justify-between"><dt className="text-ink-muted">Private files (product downloads)</dt><dd className="text-ink">{u.private.files} files · {mb(u.private.bytes)}</dd></div>
           <div className="flex justify-between"><dt className="text-ink-muted">Upload limits</dt><dd className="text-ink">Images {mb(UPLOAD_LIMITS.image)} · Video {mb(UPLOAD_LIMITS.video)} · PDF {mb(UPLOAD_LIMITS.pdf)} · ZIP {mb(UPLOAD_LIMITS.document)}</dd></div>
         </dl>
-        <p className="mt-4 text-xs text-ink-muted">Private files are never publicly accessible — they're served only through signed, 24-hour download links for paid orders. On Hostinger, set STORAGE_DIR to a folder outside the app directory (e.g. /home/USER/nextdel-storage) so redeploys never delete uploads, and include it in your backups.</p>
+        <p className="mt-4 text-xs text-ink-muted">Private files are never publicly accessible — they&apos;re served only through signed, 24-hour download links for paid orders. On Hostinger, set STORAGE_DIR to a folder outside the app directory (e.g. /home/USER/nextdel-storage) so redeploys never delete uploads, and include it in your backups.</p>
       </Panel>
     );
   }

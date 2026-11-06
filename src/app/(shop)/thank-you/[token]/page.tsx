@@ -72,7 +72,7 @@ export default async function ThankYouPage({ params }: { params: Promise<{ token
             return (
               <section key={item.id} className="card p-5 sm:p-6">
                 <h2 className="text-lg font-semibold text-ink">{item.productTitle}</h2>
-                {!p && <p className="mt-3 text-sm text-ink-soft">This product's files are being updated. Please contact support and we'll send your access right away.</p>}
+                {!p && <p className="mt-3 text-sm text-ink-soft">This product&apos;s files are being updated. Please contact support and we&apos;ll send your access right away.</p>}
                 {p && p.downloads.length > 0 && (
                   <div className="mt-5">
                     <h3 className="heading-spaced mb-3 text-[11px]">Download</h3>
