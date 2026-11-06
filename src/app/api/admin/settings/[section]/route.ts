@@ -80,7 +80,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ section:
     if (section in schemas) {
       const key = section as keyof typeof schemas;
       const data = schemas[key].parse(body);
-      await saveSetting(key, data as never);
+      // Merge into the stored section: a form only carries its own fields, and a plain replace would
+      // wipe the others (for example saving "Checkout" used to delete the active payment gateway).
+      const current = await getSetting(key);
+      await saveSetting(key, { ...current, ...data } as never);
       await audit(admin.id, "settings_updated", { entity: "settings", entityId: key, ip });
       return json({ ok: true, message: "Saved" });
     }

@@ -37,7 +37,9 @@ export async function getGatewayConfig(gateway: GatewayName, mode?: "TEST" | "LI
 /** The gateway customers see at checkout: selected as active, enabled, and has credentials. */
 export async function getActiveGateway(): Promise<GatewayConfig | null> {
   const checkout = await getSetting("checkout");
-  const candidates: GatewayName[] = checkout.activeGateway ? [checkout.activeGateway] : [];
+  // An explicitly selected gateway wins. If none is selected, fall back to the first gateway that is
+  // enabled and has credentials, so a missing selection does not switch checkout off.
+  const candidates: GatewayName[] = checkout.activeGateway ? [checkout.activeGateway] : GATEWAYS;
   for (const g of candidates) {
     const cfg = await getGatewayConfig(g);
     if (cfg.enabled && cfg.configured) return cfg;
