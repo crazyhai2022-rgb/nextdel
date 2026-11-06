@@ -103,7 +103,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ section:
         const i = b.gateways[g];
         const cur = await prisma.paymentGatewaySetting.findUnique({ where: { gateway: g } });
         const data = {
-          enabled: i.enabled, mode: i.mode, testPublicKey: i.testPublicKey || null, livePublicKey: i.livePublicKey || null,
+          enabled: i.enabled, mode: "LIVE" as const, testPublicKey: i.testPublicKey || null, livePublicKey: i.livePublicKey || null,
           testSecretEnc: nextSecret(i.testSecret, cur?.testSecretEnc), liveSecretEnc: nextSecret(i.liveSecret, cur?.liveSecretEnc),
           testWebhookSecretEnc: nextSecret(i.testWebhookSecret, cur?.testWebhookSecretEnc), liveWebhookSecretEnc: nextSecret(i.liveWebhookSecret, cur?.liveWebhookSecretEnc),
         };

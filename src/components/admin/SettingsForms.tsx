@@ -129,7 +129,7 @@ export function PaymentsForm({ active, gateways, siteUrl, checkout }: { active: 
         const body = {
           activeGateway,
           gateways: Object.fromEntries((["RAZORPAY", "CASHFREE"] as const).map((gw) => [gw, {
-            enabled: g[gw].enabled, mode: g[gw].mode, testPublicKey: g[gw].testPublicKey, livePublicKey: g[gw].livePublicKey,
+            enabled: g[gw].enabled, mode: "LIVE" as const, testPublicKey: g[gw].testPublicKey, livePublicKey: g[gw].livePublicKey,
             testSecret: sec(`${gw}.testSecret`), liveSecret: sec(`${gw}.liveSecret`), testWebhookSecret: sec(`${gw}.testWebhookSecret`), liveWebhookSecret: sec(`${gw}.liveWebhookSecret`),
           }])),
         };
@@ -162,27 +162,13 @@ export function PaymentsForm({ active, gateways, siteUrl, checkout }: { active: 
         return (
           <Card key={gw} title={gw === "RAZORPAY" ? "Razorpay" : "Cashfree Payments"} description="Secrets are encrypted in the database and never sent to the browser.">
             <Toggle checked={st.enabled} onChange={(v) => upd(gw, { enabled: v })} label={`Enable ${gw === "RAZORPAY" ? "Razorpay" : "Cashfree"}`} />
-            <Field label="Mode">
-              <div className="flex gap-2">
-                {(["TEST", "LIVE"] as const).map((m) => (
-                  <button type="button" key={m} onClick={() => upd(gw, { mode: m })} className={`rounded-full border px-4 py-1.5 text-sm ${st.mode === m ? "border-rose/60 bg-crimson/40 text-ink" : "border-line text-ink-muted"}`}>{m === "TEST" ? "Test / Sandbox" : L.live}</button>
-                ))}
-              </div>
-            </Field>
-            <div className="grid gap-5 lg:grid-cols-2">
-              <div className="space-y-3 rounded-lg border border-line p-4">
-                <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted">Test credentials</div>
-                <Field label={L.pub}><input className="input" value={st.testPublicKey} onChange={(e) => upd(gw, { testPublicKey: e.target.value })} placeholder={gw === "RAZORPAY" ? "rzp_test_…" : ""} /></Field>
-                {secretInput("testSecret", L.sec)}
-                {gw === "RAZORPAY" && secretInput("testWebhookSecret", "Webhook secret")}
-                <ActionButton url="/api/admin/settings/payments" body={{ gateway: gw, mode: "TEST" }} label="Test saved credentials" />
-              </div>
+            <div className="grid gap-5">
               <div className="space-y-3 rounded-lg border border-line p-4">
                 <div className="text-xs font-semibold uppercase tracking-wider text-ink-muted">{L.live} credentials</div>
                 <Field label={L.pub}><input className="input" value={st.livePublicKey} onChange={(e) => upd(gw, { livePublicKey: e.target.value })} placeholder={gw === "RAZORPAY" ? "rzp_live_…" : ""} /></Field>
                 {secretInput("liveSecret", L.sec)}
                 {gw === "RAZORPAY" && secretInput("liveWebhookSecret", "Webhook secret")}
-                <ActionButton url="/api/admin/settings/payments" body={{ gateway: gw, mode: "LIVE" }} label="Test saved credentials" />
+                <ActionButton url="/api/admin/settings/payments" body={{ gateway: gw, mode: "LIVE" }} label="Check saved credentials" />
               </div>
             </div>
             <div className="rounded-lg border border-line bg-black/20 p-3 text-xs text-ink-soft">

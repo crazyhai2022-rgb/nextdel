@@ -17,7 +17,9 @@ export type GatewayConfig = {
 
 export async function getGatewayConfig(gateway: GatewayName, mode?: "TEST" | "LIVE"): Promise<GatewayConfig> {
   const row = await prisma.paymentGatewaySetting.findUnique({ where: { gateway } });
-  const m = (mode ?? (row?.mode as "TEST" | "LIVE") ?? "TEST") === "LIVE" ? "LIVE" : "TEST";
+  // Live mode only: sandbox/test credentials are no longer used anywhere.
+  void mode;
+  const m = "LIVE" as const;
   const publicKey = (m === "LIVE" ? row?.livePublicKey : row?.testPublicKey) ?? "";
   const secret = decryptSecret(m === "LIVE" ? row?.liveSecretEnc : row?.testSecretEnc) ?? "";
   // Cashfree signs webhooks with the client secret; Razorpay uses a separate webhook secret.
